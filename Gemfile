@@ -15,6 +15,8 @@ gem 'database_cleaner'
 gem 'factory_girl'
 gem 'thin'
 gem 'rake-version'
+gem 'gem-release'
+gem 'gemcutter'
 
 gem 'haml'
 gem 'sass'

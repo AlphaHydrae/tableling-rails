@@ -7,7 +7,7 @@ require "tableling-rails/version"
 Gem::Specification.new do |s|
   s.name        = "tableling-rails"
   s.version     = Tableling::VERSION
-  s.authors     = ["Simon Oulevay (Alpha Hydrae)"]
+  s.authors     = ["Simon Oulevay"]
   s.email       = ["hydrae.alpha@gmail.com"]
   s.homepage    = "https://github.com/AlphaHydrae/tableling-rails"
   s.summary     = "Async table plugin based on Backbone Marionette."
