@@ -1,0 +1,32 @@
+#books
+  #books_header
+    #books_pagination.pull-left
+      Show
+      = select_tag nil, options_for_select([ 5, 10, 15 ]), :class => 'tableling_page_size input-mini', :id => nil
+      entries
+    #books_search.pull-right
+      = text_field_tag nil, nil, :class => 'tableling_quick_search', :placeholder => 'Quick search...', :id => nil
+  %table.table.table-striped.table-hover
+    %thead
+      %tr
+        %th.sorting= Book.human_attribute_name :title
+        %th.sorting= Book.human_attribute_name :author
+    %tbody
+      %tr.loading
+        %td{ :colspan => 2 } Loading...
+  #books_footer
+    #books_info.tableling_info.pull-left
+      Showing
+      %span.first 0
+      to
+      %span.last 0
+      of
+      %span.total 0
+      entries
+    #books_page.pull-right
+      .pagination
+        %ul.tableling_page
+          %li.first= link_to '<<', '#'
+          %li.previous= link_to '<', '#'
+          %li.next= link_to '>', '#'
+          %li.last= link_to '>>', '#'
