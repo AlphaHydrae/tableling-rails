@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tableling-rails (0.0.1)
+    tableling (0.0.3)
       rails (~> 3.2.8)
 
 GEM
@@ -185,6 +185,6 @@ DEPENDENCIES
   rspec-rails
   sass
   sqlite3
-  tableling-rails!
+  tableling!
   test-unit
   thin

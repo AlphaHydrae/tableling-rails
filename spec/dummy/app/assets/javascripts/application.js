@@ -18,6 +18,6 @@
 //= require ./bootstrap
 //= require hamlcoffee
 //= require_tree ../templates
-//= require tableling-rails
+//= require tableling
 //= require ./books
 //= require_tree .
