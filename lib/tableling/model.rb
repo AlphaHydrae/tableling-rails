@@ -5,16 +5,13 @@ module Tableling
 
     def initialize options = {}, &block
 
+      @fields = []
       @field_options = {}
 
-      @modules = options[:modules] || []
-      @modules = [ @modules ] unless @modules.kind_of?(Array)
-      @modules.each{ |mod| extend mod }
-      initialize_model options
-
-      @fields = []
-      @field_modules = options[:field_modules] || []
-      @field_modules = [ @field_modules ] unless @field_modules.kind_of?(Array)
+      Array.wrap(options[:modules] || []).each do |mod|
+        extend mod
+        initialize_model options if respond_to? :initialize_model
+      end
 
       instance_eval &block if block
     end
@@ -24,7 +21,7 @@ module Tableling
         return field
       end
       # TODO: do not add field if it's already there
-      Field.new(name, @field_options.merge({ :modules => @field_modules }).merge(options), &block).tap{ |f| @fields << f }
+      Field.new(name, @field_options.merge(options), &block).tap{ |f| @fields << f }
     end
 
     def quick_search &block
@@ -47,6 +44,8 @@ module Tableling
           q = field(parts[0]).with_order q, parts[1].to_sym
         end
       end
+
+      @fields.each{ |f| q = f.with_includes q }
 
       limit = params[:page_size].to_i
       limit = 10 if limit <= 0

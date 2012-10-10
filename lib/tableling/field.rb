@@ -9,8 +9,9 @@ module Tableling
       @name = name.to_s
       @order_column = options[:order].try :to_s
       @value_column = options[:value].try :to_s
+      @includes = options[:includes]
       @model = options[:model]
-      (options[:modules] || []).each do |mod|
+      Array.wrap(options[:modules] || []).each do |mod|
         extend mod
       end
       instance_eval &block if block
@@ -24,6 +25,10 @@ module Tableling
       @value_block = block
     end
 
+    def includes &block
+      @includes_block = block
+    end
+
     def with_order query, direction
       if @order_block
         @order_block.call query, direction
@@ -32,11 +37,21 @@ module Tableling
       end
     end
 
+    def with_includes query
+      if @includes_block
+        @includes_block.call query
+      elsif @includes
+        query.includes @includes
+      else
+        query
+      end
+    end
+
     def extract object
       if @value_block
         @value_block.call object
       else
-        object.send(@value_column || @name)
+        object.send(@value_column || @name).to_s
       end
     end
   end

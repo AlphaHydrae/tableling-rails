@@ -1,0 +1,8 @@
+%table.table.table-striped.table-hover
+  %thead
+    %tr
+      %th.sorting Title
+      %th.sorting Author
+  %tbody
+    %tr.loading
+      %td{ :colspan => 2 } Loading...

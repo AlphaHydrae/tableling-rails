@@ -30,18 +30,42 @@ var BookRow = Backbone.Marionette.ItemView.extend({
   }
 });
 
-var BooksTable = Tableling.Table.extend({
+var BooksTableView = Tableling.Bootstrap.TableView.extend({
+
   itemView: BookRow,
-  template: false,
-  emptyView: NoBookRow
+  emptyView: NoBookRow,
+  itemViewContainer: 'tbody',
+
+  initialize : function(options) {
+    Tableling.Bootstrap.TableView.prototype.initialize.call(this, options);
+    this.on('composite:rendered', this.clearLoading, this);
+  },
+
+  clearLoading : function() {
+    this.$el.find('tr.loading').remove();
+  }
+});
+
+var BooksTable = Tableling.Bootstrap.extend({
+
+  tableView : BooksTableView,
+  tableViewOptions : {
+    template: 'booksTableView',
+    collection: new BooksCollection({
+      model: Book
+    })
+  }
 });
 
 $(function() {
 
-  new BooksTable({
-    el: $('#books'),
-    collection: new BooksCollection({
-      model: Book
-    })
-  }).render();
+  var table = new BooksTable({
+    tableling: {
+      pageSize: 5
+    }
+  });
+
+  new Backbone.Marionette.Region({
+    el: '#books'
+  }).show(table);
 });
