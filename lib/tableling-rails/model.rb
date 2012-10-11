@@ -32,8 +32,8 @@ module Tableling
       
       q = base_query
 
-      if @quick_search and params[:quick_search].present?
-        q = @quick_search.call q, params[:quick_search].to_s
+      if @quick_search and params[:quickSearch].present?
+        q = @quick_search.call q, params[:quickSearch].to_s
       end
 
       total = q.count :all
@@ -47,7 +47,7 @@ module Tableling
 
       @fields.each{ |f| q = f.with_includes q }
 
-      limit = params[:page_size].to_i
+      limit = params[:pageSize].to_i
       limit = 10 if limit <= 0
       q = q.limit limit
 

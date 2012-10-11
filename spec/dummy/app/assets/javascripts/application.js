@@ -19,5 +19,6 @@
 //= require hamlcoffee
 //= require_tree ../templates
 //= require tableling
+//= require tableling/bootstrap
 //= require ./books
 //= require_tree .
