@@ -61,7 +61,10 @@ $(function() {
 
   var table = new BooksTable({
     tableling: {
-      pageSize: 5
+      pageSize: 5,
+      request: {
+        type: 'POST'
+      }
     }
   });
 
