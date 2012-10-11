@@ -10,13 +10,11 @@ Gem::Specification.new do |s|
   s.authors     = ["Simon Oulevay"]
   s.email       = ["hydrae.alpha@gmail.com"]
   s.homepage    = "https://github.com/AlphaHydrae/tableling-rails"
-  s.summary     = "Table plugin based on Backbone Marionette."
-  s.description = "Provides modular table views based on Backbone Collections and Backbone Marionette Layouts and Event Aggregators."
+  s.summary     = "Tableling backend module for Ruby on Rails."
+  s.description = "Provides the latest release of tableling and Ruby on Rails helpers to easily generate table data from active record models."
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["LICENSE.txt", "Rakefile", "README.md"]
   s.test_files = Dir["spec/**/*"]
 
-  s.add_dependency "rails", "~> 3.2.8"
-
-  s.add_development_dependency "sqlite3"
+  s.add_dependency "rails", "~> 3.2"
 end
