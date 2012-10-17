@@ -20,9 +20,6 @@ gem 'gemcutter'
 
 gem 'haml'
 gem 'sass'
-gem 'jquery-rails'
-gem 'backbone-on-rails'
-gem 'marionette-rails'
 gem 'haml_coffee_assets'
 gem 'execjs'
 

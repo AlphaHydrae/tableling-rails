@@ -46,7 +46,7 @@ var BooksTableView = Tableling.Bootstrap.TableView.extend({
   }
 });
 
-var BooksTable = Tableling.Bootstrap.extend({
+var BooksTable = Tableling.Bootstrap.Table.extend({
 
   tableView : BooksTableView,
   tableViewOptions : {
@@ -60,11 +60,9 @@ var BooksTable = Tableling.Bootstrap.extend({
 $(function() {
 
   var table = new BooksTable({
-    tableling: {
-      pageSize: 5,
-      request: {
-        type: 'POST'
-      }
+    pageSize: 5,
+    fetchOptions: {
+      type: 'POST'
     }
   });
 
