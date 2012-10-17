@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Simon Oulevay"]
   s.email       = ["hydrae.alpha@gmail.com"]
   s.homepage    = "https://github.com/AlphaHydrae/tableling-rails"
-  s.summary     = "Tableling backend module for Ruby on Rails."
-  s.description = "Provides the latest release of tableling and Ruby on Rails helpers to easily generate table data from active record models."
+  s.summary     = "Tableling gem for Ruby on Rails."
+  s.description = "Javascript assets for the latest Tableling release and active record extensions to easily generate table data."
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["LICENSE.txt", "Rakefile", "README.md"]
   s.test_files = Dir["spec/**/*"]
