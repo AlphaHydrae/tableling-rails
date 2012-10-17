@@ -54,6 +54,9 @@ var BooksTable = Tableling.Bootstrap.Table.extend({
     collection: new BooksCollection({
       model: Book
     })
+  },
+  pageSizeViewOptions : {
+    sizes : [ 5, 10, 15 ]
   }
 });
 
