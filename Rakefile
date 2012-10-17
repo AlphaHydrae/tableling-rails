@@ -13,7 +13,7 @@ Dummy::Application.load_tasks
 
 require 'rake-version'
 RakeVersion::Tasks.new do |v|
-  v.copy 'lib/tableling/version.rb'
+  v.copy 'lib/tableling-rails/version.rb'
 end
 
 task :default => :spec
