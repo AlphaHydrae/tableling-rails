@@ -30,7 +30,7 @@ module Tableling
 
     def process params
       
-      q = base_query
+      q = params[:base] || base_query
 
       if @quick_search and params[:quickSearch].present?
         q = @quick_search.call q, params[:quickSearch].to_s
