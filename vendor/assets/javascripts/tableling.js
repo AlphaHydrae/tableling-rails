@@ -1,13 +1,13 @@
 /*!
- * Tableling v0.0.10
- * Copyright (c) 2012 Simon Oulevay (Alpha Hydrae) <hydrae.alpha@gmail.com>
+ * Tableling v0.0.12
+ * Copyright (c) 2012-2013 Simon Oulevay (Alpha Hydrae) <hydrae.alpha@gmail.com>
  * Distributed under MIT license
  * https://github.com/AlphaHydrae/tableling
  */
 Backbone.Tableling = Tableling = (function(Backbone, _, $){
 
   var Tableling = {
-    version : "0.0.10"
+    version : "0.0.12"
   };
 
   // Tableling
@@ -20,7 +20,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
     className: 'tableling',
   
     // Default table options can be overriden by subclasses.
-    tableling : {
+    config : {
       page : 1
     },
   
@@ -28,13 +28,13 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
       options = options || {};
   
       // Table options can also be overriden for each instance at construction.
-      this.tableling = _.extend(_.clone(this.tableling), this.filterConfig(options));
+      this.config = _.extend(_.clone(this.config || {}), _.result(options, 'config') || {});
   
       // We use an event aggregator to manage the layout and its components.
       // You can use your own by passing a `vent` option.
-      this.vent = options.vent || new Backbone.Marionette.EventAggregator();
+      this.vent = options.vent || new Backbone.Wreqr.EventAggregator();
   
-      this.fetchOptions = _.extend(_.clone(this.fetchOptions || {}), options.fetchOptions || {});
+      this.fetchOptions = _.extend(_.clone(this.fetchOptions || {}), _.result(options, 'fetchOptions') || {});
   
       // Components should trigger the `table:update` event to update
       // the table (e.g. change page size, sort) and fetch the new data.
@@ -45,7 +45,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
     // Called once rendering is complete. By default, it updates the table.
     setup : function() {
-      this.ventTrigger('table:setup', this.filterConfig(this.tableling, true));
+      this.ventTrigger('table:setup', this.config);
       this.ventTrigger('table:update');
     },
   
@@ -57,7 +57,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
     // ### Refreshing the table
     update : function(config, options) {
   
-      _.each(this.filterConfig(config || {}), _.bind(this.updateValue, this));
+      _.each(config || {}, _.bind(this.updateValue, this));
   
       // Set the `refresh` option to false to update the table configuration
       // without refreshing.
@@ -68,10 +68,10 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
     updateValue : function(value, key) {
       if (value && value.toString().length) {
-        this.tableling[key] = value;
+        this.config[key] = value;
       } else {
         // Blank values are deleted to avoid sending them in ajax requests.
-        delete this.tableling[key];
+        delete this.config[key];
       }
     },
   
@@ -105,35 +105,24 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
     // ### Request
     requestData : function() {
-      return this.filterConfig(this.tableling);
+      return this.config;
     },
   
     // ### Response
     processResponse : function(collection, response) {
   
-      this.tableling.length = collection.length;
+      this.config.length = collection.length;
   
       // Tableling expects the response from a fetch to have a `total` property
       // which is the total number of items (not just in the current page).
-      this.tableling.total = response.total;
+      this.config.total = response.total;
   
       // `tableling:refreshed` is triggered after every refresh. The first argument
       // is the current table configuration with the following additional meta data:
       //
       // * `total` - the total number of items
       // * `length` - the number of items in the current page
-      this.ventTrigger('table:refreshed', this.filterConfig(this.tableling, true));
-    },
-  
-    // ### Utilities
-    // Whitelists the given configuration to contain only table configuration properties.
-    // Pass `true` as the second argument to include meta data (i.e. total & length).
-    filterConfig : function(config, all) {
-      if (all) {
-        return _.pick(config, 'page', 'pageSize', 'quickSearch', 'sort', 'length', 'total');
-      } else {
-        return _.pick(config, 'page', 'pageSize', 'quickSearch', 'sort');
-      }
+      this.ventTrigger('table:refreshed', this.config);
     },
   
     // Triggers an event in the event aggregator. If `Tableling.debug` is set, it also
@@ -367,6 +356,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
       // TODO: add auto-sort
       this.vent = options.vent;
       this.sort = [];
+      this.vent.on('table:setup', this.setSort, this);
     },
   
     updateSort : function(ev) {
@@ -380,31 +370,59 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
       if (ev.shiftKey || this.sort.length == 1) {
   
-        var existing = _.find(this.sort, function(item) {
-          return item.field == field;
+        var index = -1;
+        _.find(this.sort, function(item, i) {
+          if (item.split(' ')[0] == field) {
+            index = i;
+          }
         });
   
-        if (existing) {
-          existing.direction = existing.direction == 'asc' ? 'desc' : 'asc';
-          el.removeClass('sorting sorting-asc sorting-desc');
-          el.addClass('sorting-' + existing.direction);
+        if (index >= 0) {
+  
+          var parts = this.sort[index].split(' ');
+          this.sort[index] = parts[0] + ' ' + (parts[1] == 'asc' ? 'desc' : 'asc');
+          this.showSort();
           return this.vent.trigger('table:update', this.config());
         }
       }
   
       if (!ev.shiftKey) {
         this.sort.length = 0;
-        this.$el.find('thead th').removeClass('sorting sorting-asc sorting-desc').addClass('sorting');
       }
   
-      this.sort.push({
-        field: field,
-        direction: 'asc'
-      });
+      this.sort.push(field + ' asc');
   
-      el.removeClass('sorting sorting-asc sorting-desc').addClass('sorting-asc');
+      this.showSort();
   
       this.vent.trigger('table:update', this.config());
+    },
+  
+    setSort : function(config) {
+      if (config && config.sort) {
+        this.sort = config.sort.slice(0);
+        this.showSort();
+      }
+    },
+  
+    showSort : function() {
+  
+      this.$el.find('thead th').removeClass('sorting sorting-asc sorting-desc').addClass('sorting');
+  
+      for (var i = 0; i < this.sort.length; i++) {
+  
+        var parts = this.sort[i].split(' ');
+        var name = parts[0];
+        var direction = parts[1];
+        
+        field = this.$el.find('thead [data-field="' + name + '"]');
+        if (!field.length) {
+          field = this.$el.find('thead th:contains("' + name + '")');
+        }
+  
+        if (field.length) {
+          field.removeClass('sorting').addClass(direction == 'desc' ? 'sorting-desc' : 'sorting-asc');
+        }
+      }
     },
   
     config : function() {
@@ -415,16 +433,11 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
     },
   
     sortConfig : function() {
-      if (!this.sort.length) {
-        return null;
-      }
-      return _.map(this.sort, function(item) {
-        return item.field + ' ' + item.direction;
-      });
+      return this.sort.length ? this.sort : null;
     },
   
     fieldName : function(el) {
-      return el.data('field') || el.text().toLowerCase();
+      return el.data('field') || el.text();
     }
   });
   
@@ -450,12 +463,25 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
     addSize : function(size) {
       $('<option />').text(size).appendTo(this.ui.field);
+    },
+  
+    config : function() {
+      var config = Tableling.FieldModule.prototype.config.call(this);
+      config.page = 1;
+      return config;
     }
   });
   
   Tableling.Plain.QuickSearchView = Tableling.Plain.Table.prototype.quickSearchView = Tableling.FieldModule.extend({
+  
     name : 'quickSearch',
-    template : _.template('<input type="text" name="quickSearch" placeholder="Quick search..." />')
+    template : _.template('<input type="text" name="quickSearch" placeholder="Quick search..." />'),
+  
+    config : function() {
+      var config = Tableling.FieldModule.prototype.config.call(this);
+      config.page = 1;
+      return config;
+    }
   });
   
   Tableling.Plain.InfoView = Tableling.Plain.Table.prototype.infoView = Tableling.Module.extend({
@@ -477,7 +503,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
     },
   
     firstRecord : function(data) {
-      return data.length ? (data.page - 1) * data.pageSize + 1 : 0;
+      return data.length ? ((data.page || 1) - 1) * data.pageSize + 1 : 0;
     },
   
     lastRecord : function(data) {
@@ -511,10 +537,10 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
         this.ui.last.addClass('disabled');
       } else {
         this.data = data;
-        this.enable(this.ui.first, data.page > 1);
-        this.enable(this.ui.previous, data.page > 1);
-        this.enable(this.ui.next, data.page < this.numberOfPages(data));
-        this.enable(this.ui.last, data.page < this.numberOfPages(data));
+        this.enable(this.ui.first, this.getPage(data) > 1);
+        this.enable(this.ui.previous, this.getPage(data) > 1);
+        this.enable(this.ui.next, this.getPage(data) < this.numberOfPages(data));
+        this.enable(this.ui.last, this.getPage(data) < this.numberOfPages(data));
       }
     },
   
@@ -534,11 +560,11 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
     },
   
     goToPreviousPage : function() {
-      this.goToPage(this.data.page - 1);
+      this.goToPage(this.getPage(this.data) - 1);
     },
   
     goToNextPage : function() {
-      this.goToPage(this.data.page + 1);
+      this.goToPage(this.getPage(this.data) + 1);
     },
   
     goToLastPage : function() {
@@ -547,6 +573,10 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
     goToPage : function(n) {
       this.vent.trigger('table:update', { page : n });
+    },
+  
+    getPage : function(data) {
+      return data.page || 1;
     }
   });
   
