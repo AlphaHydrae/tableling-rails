@@ -14826,7 +14826,7 @@ _.extend(Marionette.Module, {
   return Marionette;
 })(Backbone, _, $ || window.jQuery || window.Zepto || window.ender);
 /*!
- * Tableling v0.0.13
+ * Tableling v0.0.14
  * Copyright (c) 2012-2013 Simon Oulevay (Alpha Hydrae) <hydrae.alpha@gmail.com>
  * Distributed under MIT license
  * https://github.com/AlphaHydrae/tableling
@@ -14834,7 +14834,7 @@ _.extend(Marionette.Module, {
 Backbone.Tableling = Tableling = (function(Backbone, _, $){
 
   var Tableling = {
-    version : "0.0.13"
+    version : "0.0.14"
   };
 
   // Tableling
@@ -14867,7 +14867,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
       // the table (e.g. change page size, sort) and fetch the new data.
       this.vent.on('table:update', this.update, this);
   
-      this.on('render', this.setup, this);
+      this.on('item:rendered', this.setup, this);
     },
   
     // Called once rendering is complete. By default, it updates the table.
