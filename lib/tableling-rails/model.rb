@@ -36,7 +36,9 @@ module Tableling
         q = @quick_search.call q, params[:quickSearch].to_s
       end
 
-      total = q.count :all
+      total = q.count
+      # TODO: allow to override count query to handle group by use cases
+      total = total.inject(0){ |memo,(k,v)| memo + v } if total.kind_of? Hash
 
       if params[:sort].present?
         params[:sort].select{ |item| item.match /\A([^ ]+)* (asc|desc)\Z/ }.each do |item|
