@@ -3555,7 +3555,7 @@ _.extend(Marionette.Module, {
   return Marionette;
 })(Backbone, _, $ || window.jQuery || window.Zepto || window.ender);
 /*!
- * Tableling v0.0.14
+ * Tableling v0.0.15
  * Copyright (c) 2012-2013 Simon Oulevay (Alpha Hydrae) <hydrae.alpha@gmail.com>
  * Distributed under MIT license
  * https://github.com/AlphaHydrae/tableling
@@ -3563,7 +3563,7 @@ _.extend(Marionette.Module, {
 Backbone.Tableling = Tableling = (function(Backbone, _, $){
 
   var Tableling = {
-    version : "0.0.14"
+    version : "0.0.15"
   };
 
   // Tableling
@@ -3905,7 +3905,9 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   Tableling.Plain.TableView = Backbone.Marionette.CompositeView.extend({
   
     events : {
-      'click thead th' : 'updateSort'
+      'click thead th.sorting' : 'updateSort',
+      'click thead th.sorting-asc' : 'updateSort',
+      'click thead th.sorting-desc' : 'updateSort'
     },
   
     initialize : function(options) {
@@ -3962,7 +3964,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
   
     showSort : function() {
   
-      this.$el.find('thead th').removeClass('sorting sorting-asc sorting-desc').addClass('sorting');
+      this.$el.find('thead th.sorting, thead th.sorting-asc, thead th.sorting-desc').removeClass('sorting sorting-asc sorting-desc').addClass('sorting');
   
       for (var i = 0; i < this.sort.length; i++) {
   
