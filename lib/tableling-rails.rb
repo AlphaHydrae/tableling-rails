@@ -1,6 +1,4 @@
 module Tableling
 end
 
-[ :engine, :model, :field, :version, :activerecord ].each do |lib|
-  require File.expand_path("../tableling-rails/#{lib}", __FILE__)
-end
+Dir[File.join File.dirname(__FILE__), File.basename(__FILE__, '.*'), '*.rb'].each{ |lib| require lib }

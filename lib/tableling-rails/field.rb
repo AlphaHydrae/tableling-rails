@@ -3,22 +3,28 @@ module Tableling
 
   class Field
     attr_reader :name
-    # TODO: extract active record functionality
 
-    def initialize name, options = {}, &block
-      @name = name.to_s
-      @order_column = options[:order].try :to_s
+    def initialize name, view, options = {}, &block
+
+      @name, @view = name.to_s, view
       @value_column = options[:value].try :to_s
       @includes = options[:includes]
-      @model = options[:model]
-      Array.wrap(options[:modules] || []).each do |mod|
-        extend mod
+
+      if options[:order] == false
+        @no_order = true
+      elsif options[:order]
+        @order_column = options[:order].to_s
       end
+
       instance_eval &block if block
     end
 
     def order &block
       @order_block = block
+    end
+
+    def no_order
+      @no_order = true
     end
 
     def value &block
@@ -30,10 +36,11 @@ module Tableling
     end
 
     def with_order query, direction
+      return if @no_order
       if @order_block
         @order_block.call query, direction
       else
-        query.order "#{@model.table_name}.#{@order_column || @name} #{direction}"
+        query.order "#{model.table_name}.#{@order_column || @name} #{direction}"
       end
     end
 
@@ -51,8 +58,19 @@ module Tableling
       if @value_block
         @value_block.call object
       else
-        object.send(@value_column || @name).to_s
+        serialize object.send(@value_column || @name)
       end
+    end
+
+    private
+
+    def model
+      @view.config.model
+    end
+
+    def serialize value
+      serializer = @view.settings.serializers.find{ |s| s.match? value }
+      serializer ? serializer.serialize(value) : value
     end
   end
 end
