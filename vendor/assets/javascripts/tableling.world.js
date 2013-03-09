@@ -14826,7 +14826,7 @@ _.extend(Marionette.Module, {
   return Marionette;
 })(Backbone, _, $ || window.jQuery || window.Zepto || window.ender);
 /*!
- * Tableling v0.0.17
+ * Tableling v0.0.18
  * Copyright (c) 2012-2013 Simon Oulevay (Alpha Hydrae) <hydrae.alpha@gmail.com>
  * Distributed under MIT license
  * https://github.com/AlphaHydrae/tableling
@@ -14834,7 +14834,7 @@ _.extend(Marionette.Module, {
 Backbone.Tableling = Tableling = (function(Backbone, _, $){
 
   var Tableling = {
-    version : "0.0.17"
+    version : "0.0.18"
   };
 
   // Tableling
@@ -15028,7 +15028,7 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
       // When instantiated, the view class will be passed the event
       // aggregator as the `vent` option. Additional options can be
       // given named after the view class, e.g. `pageSizeViewOptions`.
-      var options = _.extend(this[name + 'ViewOptions'] || {}, { vent: this.vent });
+      var options = _.extend(this.getModuleOptions(name), { vent: this.vent });
   
       var view = new viewClass(options);
   
@@ -15047,6 +15047,11 @@ Backbone.Tableling = Tableling = (function(Backbone, _, $){
     // used to fetch table data.
     getCollection : function() {
       return this.moduleViews.table.collection;
+    },
+  
+    getModuleOptions : function(name) {
+      var options = this[name + 'ViewOptions'] || {};
+      return typeof(options) == 'function' ? options.call(this) : options;
     }
   });
   
