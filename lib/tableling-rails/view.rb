@@ -2,7 +2,8 @@
 module Tableling
 
   class View
-    attr_reader :name, :config, :settings, :base_query, :base_count_query
+    attr_reader :name, :config, :settings, :fields
+    attr_accessor :base_query, :base_count_query, :quick_search_block, :serialize_record_block, :serialize_response_block
 
     def initialize name, config, options = {}, &block
 
@@ -13,28 +14,16 @@ module Tableling
       @base_count_query = nil
 
       @settings = Settings.new @config.settings
-      extend @settings.dsl
 
-      instance_eval &block if block
-      @frozen = true
+      if block
+        dsl = DSL.new self
+        dsl.extend @settings.dsl
+        dsl.instance_eval &block
+      end
     end
 
-    def field name, options = {}, &block
-      return @fields.find{ |f| f.name.to_s == name.to_s } if @frozen
-      @fields.delete_if{ |f| f.name.to_s == name.to_s }
-      Field.new(name, self, options, &block).tap{ |f| @fields << f }
-    end
-
-    def quick_search &block
-      @quick_search = block
-    end
-
-    def base base_query
-      @base_query = base_query
-    end
-
-    def base_count base_count_query
-      @base_count_query = base_count_query
+    def field name
+      @fields.find{ |f| f.name.to_s == name.to_s }
     end
 
     def process options = {}
@@ -42,9 +31,9 @@ module Tableling
       q = options[:base] || @base_query
       cq = options[:base_count] || @base_count_query
 
-      if @quick_search and options[:quickSearch].present?
-        q = @quick_search.call q, options[:quickSearch].to_s
-        cq = @quick_search.call cq, options[:quickSearch].to_s if cq
+      if @quick_search_block and options[:quickSearch].present?
+        q = @quick_search_block.call q, options[:quickSearch].to_s
+        cq = @quick_search_block.call cq, options[:quickSearch].to_s if cq
       end
 
       total = (cq || q).count
@@ -68,12 +57,52 @@ module Tableling
       offset = 0 if offset < 0
       q = q.offset offset * limit
 
-      {
-        :total => total,
-        :data => q.all.collect{ |o|
-          @fields.inject({}){ |memo,f| memo[f.name] = f.extract(o); memo }
-        }
+      serialize_response total, q
+    end
+
+    class DSL
+
+      def initialize view
+        @view = view
+      end
+
+      def field name, options = {}, &block
+        @view.fields.delete_if{ |f| f.name.to_s == name.to_s }
+        Field.new(name, @view, options, &block).tap{ |f| @view.fields << f }
+      end
+
+      %w(base base_count).each do |m|
+        define_method m do |q|
+          @view.send "#{m}_query=", q
+        end
+      end
+
+      %w(quick_search serialize_record serialize_response).each do |m|
+        define_method m do |&block|
+          @view.send "#{m}_block=", block
+        end
+      end
+    end
+
+    private
+
+    def serialize_response total, query
+
+      res = {
+        total: total,
+        data: query.all
       }
+
+      if @serialize_response_block
+        @serialize_response_block.call res
+      else
+        res[:data] = res[:data].collect{ |r| serialize_record r }
+        res
+      end
+    end
+
+    def serialize_record record
+      @serialize_record_block ? @serialize_record_block.call(record) : @fields.inject({}){ |memo,f| memo[f.name] = f.extract(record); memo }
     end
   end
 end
