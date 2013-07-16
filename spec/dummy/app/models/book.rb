@@ -1,13 +1,17 @@
 class Book < ActiveRecord::Base
+  include Tableling::Model
 
   tableling do
 
-    field :title
-    field :author
+    default_view do
 
-    quick_search do |query,term|
-      term = "%#{term.downcase}%"
-      query.where('LOWER(books.title) LIKE ? OR LOWER(books.author) LIKE ?', term, term)
+      field :title
+      field :author
+
+      quick_search do |query,term|
+        term = "%#{term.downcase}%"
+        query.where('LOWER(books.title) LIKE ? OR LOWER(books.author) LIKE ?', term, term)
+      end
     end
   end
 end
