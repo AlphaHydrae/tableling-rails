@@ -1,7 +1,7 @@
 
 module Tableling
 
-  class Serializer
+  class TypeSerializer
 
     def initialize type, block
       @type, @block = type, block

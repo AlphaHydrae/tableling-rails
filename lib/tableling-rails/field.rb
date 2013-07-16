@@ -69,8 +69,8 @@ module Tableling
     end
 
     def serialize value
-      serializer = @view.settings.serializers.find{ |s| s.match? value }
-      serializer ? serializer.serialize(value) : value
+      type_serializer = @view.settings.type_serializers.find{ |s| s.match? value }
+      type_serializer ? type_serializer.serialize(value) : value
     end
   end
 end
