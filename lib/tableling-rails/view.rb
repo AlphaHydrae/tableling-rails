@@ -50,15 +50,26 @@ module Tableling
 
       @fields.each{ |f| q = f.with_includes q }
 
-      limit = options[:pageSize].to_i
-      limit = 10 if limit <= 0
-      q = q.limit limit
+      response_options = {
+        total: total
+      }
 
-      offset = options[:page].to_i - 1
-      offset = 0 if offset < 0
-      q = q.offset offset * limit
+      page_size = options[:pageSize].to_i
+      page_size = 10 if page_size <= 0
+      q = q.limit page_size
 
-      serialize_response total, q
+      max_page = (total.to_f / page_size).ceil
+      page = options[:page].to_i
+
+      # TODO: allow this to be disabled
+      if page < 1 or page > max_page
+        page = 1
+        response_options[:page] = 1
+      end
+
+      q = q.offset (page - 1) * page_size
+
+      serialize_response q, response_options
     end
 
     class DSL
@@ -87,12 +98,9 @@ module Tableling
 
     private
 
-    def serialize_response total, query
+    def serialize_response query, response_options = {}
 
-      res = {
-        total: total,
-        data: query.all
-      }
+      res = response_options.merge data: query.all
 
       if @serialize_response_block
         @serialize_response_block.call res
