@@ -2,11 +2,12 @@
 module Tableling
 
   class Field
-    attr_reader :name
+    attr_accessor :name, :alias
 
     def initialize name, view, options = {}, &block
 
       @name, @view = name.to_s, view
+      @alias = options[:as].try :to_s
       @value_column = options[:value].try :to_s
       @includes = options[:includes]
 
@@ -17,6 +18,14 @@ module Tableling
       end
 
       instance_eval &block if block
+    end
+
+    def working_name
+      @alias || @name
+    end
+
+    def as name
+      @alias = name.to_s
     end
 
     def order &block

@@ -42,7 +42,8 @@ module Tableling
       if options[:sort].present?
         options[:sort].select{ |item| item.match /\A([^ ]+)* (asc|desc)\Z/i }.each do |item|
           parts = item.split ' '
-          f = field parts[0]
+          # TODO: handle unknown fields
+          f = @fields.find{ |f| f.working_name.to_s == parts[0] }
           q = f.with_order q, parts[1].downcase.to_sym if f
         end
       end
