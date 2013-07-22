@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/AlphaHydrae/tableling-rails"
   s.summary     = "Tableling gem for Ruby on Rails."
   s.description = "Javascript assets for the latest Tableling release and active record extensions to easily generate table data."
+  s.licenses    = ["MIT"]
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["LICENSE.txt", "Rakefile", "README.md"]
   s.test_files = Dir["spec/**/*"]
