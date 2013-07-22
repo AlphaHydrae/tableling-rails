@@ -111,7 +111,7 @@ module Tableling
     end
 
     def serialize_record record
-      @serialize_record_block ? @serialize_record_block.call(record) : @fields.inject({}){ |memo,f| memo[f.name] = f.extract(record); memo }
+      @serialize_record_block ? @serialize_record_block.call(record) : @fields.inject({}){ |memo,f| memo[f.working_name] = f.extract(record); memo }
     end
   end
 end
