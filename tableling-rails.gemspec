@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = "Javascript assets for the latest Tableling release and active record extensions to easily generate table data."
   s.licenses    = ["MIT"]
 
-  s.files = Dir["{app,config,db,lib,vendor}/**/*"] + ["LICENSE.txt", "Rakefile", "README.md"]
+  s.files = Dir["{lib}/**/*"] + ["LICENSE.txt", "README.md", "VERSION"]
   s.test_files = Dir["spec/**/*"]
 
   s.add_dependency "rails", "~> 4.0"
