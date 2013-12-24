@@ -100,7 +100,7 @@ module Tableling
 
     def serialize_response query, response_options = {}
 
-      res = response_options.merge data: query.all
+      res = response_options.merge data: query.to_a
 
       if @serialize_response_block
         @serialize_response_block.call res
