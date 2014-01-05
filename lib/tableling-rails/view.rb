@@ -50,9 +50,9 @@ module Tableling
 
       @fields.each{ |f| q = f.with_includes q }
 
-      response_options = {
+      response_options = (options[:response] || {}).merge({
         total: total
-      }
+      })
 
       page_size = options[:pageSize].to_i
       page_size = 10 if page_size <= 0
