@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tableling-rails (0.0.22)
+    tableling-rails (0.0.23)
       rails (~> 4.0)
 
 GEM
